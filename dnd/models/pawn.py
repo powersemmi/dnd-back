@@ -5,9 +5,9 @@ from pydantic import BaseModel, Field, conint, conlist, validator
 from pydantic.color import Color
 
 from dnd.database.schemas.pawns import PawnTypeEnum
-from dnd.models.auth import UserModel
+from dnd.models.auth import UserInfoModel
 
-XYType: TypeAlias = conlist(conint(gt=1), min_items=2, max_items=2)
+XYType: TypeAlias = conlist(conint(ge=1), min_items=2, max_items=2)
 
 
 class MovablePawnSizeEnum(Enum):
@@ -43,14 +43,7 @@ class PawnMetaModel(BaseModel):
 
 class PawnModel(BaseModel):
     name: str
-    user: UserModel
-    meta: PawnMetaModel
-
-    class Config:
-        orm_mode = True
-
-
-class PawnsModel(BaseModel):
+    user: UserInfoModel
     meta: PawnMetaModel
 
     class Config:
@@ -58,7 +51,7 @@ class PawnsModel(BaseModel):
 
 
 class PawnMetaRequestModel(BaseModel):
-    position: tuple[conint(gt=1), conint(gt=1)] | tuple[None, None] = (
+    position: XYType | tuple[None, None] = (
         None,
         None,
     )
@@ -68,9 +61,7 @@ class PawnMetaRequestModel(BaseModel):
 
     @classmethod
     @validator("size")
-    def size_validator(
-        cls, val: tuple[conint(gt=1), conint(gt=1)], values: dict
-    ):
+    def size_validator(cls, val: XYType, values: dict):
         if (
             val is not None
             and values.get("type") is PawnTypeEnum.movable

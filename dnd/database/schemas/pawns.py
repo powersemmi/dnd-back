@@ -1,8 +1,10 @@
 from enum import Enum
 from typing import TYPE_CHECKING, Self
 
+from colour import Color
 from sqlalchemy import ForeignKey, UniqueConstraint, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy_utils import ColorType
 
@@ -24,10 +26,12 @@ class Pawn(BaseSchema):
     game_set_id = mapped_column(ForeignKey("game_sets.id"))
     name: Mapped[str]
 
-    game_set: Mapped["GameSet"] = relationship(back_populates="pawns")
-    user: Mapped["User"] = relationship(back_populates="pawns")
+    game_set: Mapped["GameSet"] = relationship(
+        back_populates="pawns", lazy="joined"
+    )
+    user: Mapped["User"] = relationship(back_populates="pawns", lazy="joined")
     meta: Mapped["PawnMeta"] = relationship(
-        back_populates="pawn", lazy="immediate", cascade="all, delete"
+        back_populates="pawn", lazy="joined", cascade="all, delete"
     )
 
     __table_args__ = (
@@ -78,11 +82,17 @@ class PawnMeta(BaseSchema):
     size_y: Mapped[int]
     x: Mapped[int] = mapped_column(nullable=True)
     y: Mapped[int] = mapped_column(nullable=True)
-    color = mapped_column(ColorType, nullable=False)
+    _color = mapped_column("color", ColorType, nullable=False)
+
+    @hybrid_property
+    def color(self) -> str:
+        if isinstance(self._color, Color):
+            return self._color.get_hex()
+        return str(self._color)
 
     pawn_id = mapped_column(ForeignKey("pawns.id"))
 
-    pawn: Mapped["Pawn"] = relationship(back_populates="meta")
+    pawn: Mapped["Pawn"] = relationship(back_populates="meta", lazy="joined")
 
     @classmethod
     async def create(
@@ -103,7 +113,7 @@ class PawnMeta(BaseSchema):
             y=position[1],
             size_x=size[0],
             size_y=size[1],
-            color=color,
+            _color=color,
             session=session,
         )
 

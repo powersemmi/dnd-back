@@ -25,10 +25,10 @@ class UserInGameset(Base):
     game_set_id = mapped_column(ForeignKey("game_sets.id"), primary_key=True)
 
     user: Mapped["User"] = relationship(
-        back_populates="in_games", lazy="immediate"
+        back_populates="in_games", lazy="joined"
     )
     game_set: Mapped["GameSet"] = relationship(
-        back_populates="users_in_game", lazy="subquery"
+        back_populates="users_in_game", lazy="joined"
     )
 
     @classmethod
@@ -55,16 +55,16 @@ class User(BaseSchema):
     _hashed_password = mapped_column("hashed_password", BYTEA, nullable=False)
 
     game_sets: Mapped[list["GameSet"]] = relationship(
-        back_populates="owner", lazy="immediate", cascade="all, delete"
+        back_populates="owner", lazy="selectin", cascade="all, delete"
     )
     maps: Mapped[list["Map"]] = relationship(
-        back_populates="user", lazy="immediate", cascade="all, delete"
+        back_populates="user", lazy="selectin", cascade="all, delete"
     )
     pawns: Mapped[list["Pawn"]] = relationship(
-        back_populates="user", lazy="immediate"
+        back_populates="user", lazy="selectin"
     )
     in_games: Mapped[list["UserInGameset"]] = relationship(
-        back_populates="user", lazy="immediate", cascade="all, delete"
+        back_populates="user", lazy="selectin", cascade="all, delete"
     )
 
     @hybrid_property

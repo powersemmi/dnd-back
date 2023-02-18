@@ -120,7 +120,7 @@ async def get_game_set(
         res.pawns = [
             pawn
             for pawn in res.pawns
-            if pawn.user.username == user.username or pawn.meta
+            if pawn.user.username == user.username or pawn.meta.visibility
         ]
         return res
     raise HTTPException(

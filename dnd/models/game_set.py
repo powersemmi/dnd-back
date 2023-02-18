@@ -49,6 +49,15 @@ class GameSetModel(BaseModel):
         orm_mode = True
 
 
+class UserGameSetModel(BaseModel):
+    name: str
+    short_url: str
+    owner: UserInGameModel
+
+    class Config:
+        orm_mode = True
+
+
 class GameSetsModel(BaseModel):
     __root__: list[Optional[GameSetModel]]
 

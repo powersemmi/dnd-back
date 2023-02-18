@@ -15,10 +15,10 @@ class Map(BaseSchema):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     name: Mapped[str]
 
-    user: Mapped["User"] = relationship(back_populates="maps")
+    user: Mapped["User"] = relationship(back_populates="maps", lazy="joined")
 
     meta: Mapped["MapMeta"] = relationship(
-        back_populates="map", lazy="immediate", cascade="all, delete"
+        back_populates="map", lazy="joined", cascade="all, delete"
     )
 
     __table_args__ = (
@@ -64,7 +64,7 @@ class MapMeta(BaseSchema):
     len_y: Mapped[int]
     image_short_url: Mapped[Optional[str]]
 
-    map: Mapped["Map"] = relationship(back_populates="meta")
+    map: Mapped["Map"] = relationship(back_populates="meta", lazy="joined")
 
     @classmethod
     async def create(

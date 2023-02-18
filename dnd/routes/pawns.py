@@ -152,9 +152,9 @@ async def delete_pawn(
     pawn = await Pawn.get_by_name_and_game_set_id(
         session=session, game_set_id=game_set.id, name=pawn_name
     )
-    if not (user.id == pawn.user_id or user.id == game_set.owner.id):
-        raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
     if pawn:
+        if not (user.id == pawn.user_id or user.id == game_set.owner.id):
+            raise HTTPException(status_code=status.HTTP_405_METHOD_NOT_ALLOWED)
         await session.delete(pawn)
         await session.commit()
 

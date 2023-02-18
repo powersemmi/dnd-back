@@ -19,18 +19,18 @@ class GameSet(BaseSchema):
     owner_id = mapped_column(ForeignKey("users.id"))
 
     owner: Mapped["User"] = relationship(
-        back_populates="game_sets", lazy="immediate"
+        back_populates="game_sets", lazy="joined"
     )
 
     meta: Mapped["GameSetMeta"] = relationship(
-        back_populates="game_set", lazy="immediate", cascade="all, delete"
+        back_populates="game_set", lazy="joined", cascade="all, delete"
     )
     pawns: Mapped[list["Pawn"]] = relationship(
-        back_populates="game_set", lazy="immediate", cascade="all, delete"
+        back_populates="game_set", lazy="selectin", cascade="all, delete"
     )
 
     users_in_game: Mapped[list["UserInGameset"]] = relationship(
-        back_populates="game_set", lazy="immediate"
+        back_populates="game_set", lazy="selectin"
     )
 
     @classmethod
@@ -82,7 +82,7 @@ class GameSetMeta(BaseSchema):
     map_id = mapped_column(ForeignKey("maps.id"), nullable=True)
 
     game_set: Mapped["GameSet"] = relationship(back_populates="meta")
-    map: Mapped[Optional["Map"]] = relationship(lazy="immediate")
+    map: Mapped[Optional["Map"]] = relationship(lazy="joined")
 
     @classmethod
     async def create(
